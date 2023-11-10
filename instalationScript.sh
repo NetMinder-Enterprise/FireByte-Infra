@@ -38,12 +38,13 @@ download_scripts(){
 
   # Download dos scripts SQL
   cd DB || exit_with_error "Diretório não encontrado: FireByte/DB."
+  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile."
+  cd sql || exit_with_error "Diretório não encontrado: FireByte/DB/sql."
   wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/createUser.sql" || exit_with_error "Falha ao baixar createUser.sql."
   wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Script%20DB.sql" || exit_with_error "Falha ao baixar Script DB.sql."
-  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile."
 
   # Download do .jar
-  cd ../Java || exit_with_error "Diretório não encontrado: Java."
+  cd ../../Java || exit_with_error "Diretório não encontrado: Java."
   wget "https://github.com/NetMinder-Enterprise/FireByte-Backend/raw/main/firebyte.jar" || exit_with_error "Falha ao baixar o Sistema Java."
   wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Java/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile."
 
