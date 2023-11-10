@@ -12,9 +12,9 @@ exit_with_error() {
 }
 
 # Verifica se o script é executado como root
-# if [ "$EUID" -ne 0 ]; then
-#     exit_with_error "Por favor, execute este script como root. (sudo ./instalationScript.sh)"
-# fi
+if [ "$EUID" -ne 0 ]; then
+    exit_with_error "Por favor, execute este script como root. (sudo ./instalationScript.sh)"
+fi
 
 # Atualiza o sistema
 printf "${PURPLE}Atualizando Sistema...${NC} \n"
@@ -56,20 +56,18 @@ wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main
 docker build -t firebytedb . || exit_with_error "Falha ao construir a imagem Docker para o banco de dados."
 docker run -d --name localDB -p 3306:3306 firebytedb || exit_with_error "Falha ao iniciar o contêiner MySQL."
 cd .. || exit_with_error "Falha ao voltar para o diretório FireByte."
-
 printf "${GREEN}Banco Local configurado com sucesso!${NC} \n"
 
 # Java .jar
 cd Java || exit_with_error "Diretório não encontrado: Java."
 printf "${PURPLE}Baixando Sistema Java...${NC} \n"
-# Adicione aqui o comando wget para o .jar
-
+wget "https://github.com/NetMinder-Enterprise/FireByte-Backend/raw/main/firebyte.jar" || exit_with_error "Falha ao baixar o Sistema Java."
 printf "${GREEN}Sistema Java Baixado com sucesso!${NC} \n"
 
 # Java Container
 printf "${PURPLE}Configurando Sistema Java...${NC} \n"
 wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Java/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile."
-docker build -t firebyteJava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
-docker run -p 8080:8080 firebyteJava || exit_with_error "Falha ao iniciar o contêiner Java."
+docker build -t firebytejava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
+docker run -p 8080:8080 firebytejava || exit_with_error "Falha ao iniciar o contêiner Java."
 printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
 printf "${PURPLE}Para executar nosso programa novamente, você pode rodar o script 'Firebyte.sh'${NC} \n"
