@@ -4,65 +4,72 @@ PURPLE='\033[0;35m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
-#Check root permission
-if [ "$EUID" -ne 0 ];
-  then
-    printf "${RED}Por favor, execute este script como root.${NC}"
-    exit
-fi
 
-#Update System
+# Função para exibir mensagens de erro e sair
+exit_with_error() {
+    printf "${RED}Erro: $1${NC}\n"
+    exit 1
+}
+
+# Verifica se o script é executado como root
+# if [ "$EUID" -ne 0 ]; then
+#     exit_with_error "Por favor, execute este script como root. (sudo ./instalationScript.sh)"
+# fi
+
+# Atualiza o sistema
 printf "${PURPLE}Atualizando Sistema...${NC} \n"
-apt-get update
+apt-get update || exit_with_error "Falha ao atualizar o sistema."
 printf "${GREEN}Sistema atualizado com sucesso!${NC} \n"
 
-#Create Directories
-mkdir FireByte
-cd Firebyte
-mkdir DB
-mkdir Java
+# Criação de diretórios
+mkdir -p FireByte/DB FireByte/Java || exit_with_error "Falha ao criar diretórios."
 
-#Create executable for running the app
-wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Firebyte.sh"
+# Download do script executável para a execução do aplicativo
+wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Firebyte.sh" || exit_with_error "Falha ao baixar o script executável."
 
-#Setup Docker
+# Configuração do Docker
 printf "${PURPLE}Verificando se o docker está instalado...${NC} \n"
-docker --version
-if [ $? = 0 ];
-  then
+if ! command -v docker &> /dev/null; then
     printf "${PURPLE}Instalando o docker...${NC} \n"
-    sudo apt-get install docker.io -y
+    sudo apt-get install docker.io -y || exit_with_error "Falha ao instalar o Docker."
     printf "${GREEN}Docker instalado com sucesso!${NC} \n"
 fi
+
 printf "${PURPLE}Iniciando o docker...${NC} \n"
-sudo systemctl start docker
-sudo systemctl enable docker
+sudo systemctl start docker || exit_with_error "Falha ao iniciar o Docker."
+sudo systemctl enable docker || exit_with_error "Falha ao habilitar o Docker."
 printf "${GREEN}Docker iniciado!${NC} \n"
 
-#MySQL Container
+# MySQL Container
 printf "${PURPLE}Configurando Banco Local...${NC} \n"
-cd DB
-mkdir sql
-cd sql
-wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/createUser.sql"
-wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Script%20DB.sql"
-cd ..
-wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Dockerfile"
-docker build -t firebytedb .
-docker run -d --name localDB -p 3306:3306 firebytedb
-cd ..
+cd FireByte/DB || exit_with_error "Diretório não encontrado: FireByte/DB."
+mkdir -p sql || exit_with_error "Falha ao criar diretório sql."
+cd sql || exit_with_error "Falha ao acessar o diretório sql."
+
+# Download dos arquivos SQL
+wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/createUser.sql" || exit_with_error "Falha ao baixar createUser.sql."
+wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Script%20DB.sql" || exit_with_error "Falha ao baixar Script DB.sql."
+cd .. || exit_with_error "Falha ao voltar para o diretório DB."
+
+# Download do Dockerfile
+wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile."
+docker build -t firebytedb . || exit_with_error "Falha ao construir a imagem Docker para o banco de dados."
+docker run -d --name localDB -p 3306:3306 firebytedb || exit_with_error "Falha ao iniciar o contêiner MySQL."
+cd .. || exit_with_error "Falha ao voltar para o diretório FireByte."
+
 printf "${GREEN}Banco Local configurado com sucesso!${NC} \n"
 
-#Java .jar
-cd Java
+# Java .jar
+cd Java || exit_with_error "Diretório não encontrado: Java."
 printf "${PURPLE}Baixando Sistema Java...${NC} \n"
-#wget .jar
+# Adicione aqui o comando wget para o .jar
+
 printf "${GREEN}Sistema Java Baixado com sucesso!${NC} \n"
 
-#Java Container
+# Java Container
 printf "${PURPLE}Configurando Sistema Java...${NC} \n"
-wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Java/Dockerfile"
-docker build -t firebyteJava .
-docker run -p 8080:8080 firebyteJava
+wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Java/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile."
+docker build -t firebyteJava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
+docker run -p 8080:8080 firebyteJava || exit_with_error "Falha ao iniciar o contêiner Java."
 printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
-printf "${PURPLE}Para executar nosso programa novamente você pode rodar o script 'Firebyte.sh'${NC} \n"
+printf "${PURPLE}Para executar nosso programa novamente, você pode rodar o script 'Firebyte.sh'${NC} \n"
