@@ -1,10 +1,20 @@
 #!/bin/bash
 
+PURPLE='\033[0;35m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+#Check root permission
+if [ "$EUID" -ne 0 ];
+  then
+    printf "${RED}Por favor, execute este script como root.${NC}"
+    exit
+fi
+
 #Update System
-echo "\033[0;34mAtualizando Sistema..."
-sudo apt update -y
-sudo apt upgrade -y
-echo "\033[0;34mSistema atualizado com sucesso!"
+printf "${PURPLE}Atualizando Sistema...${NC} \n"
+apt-get update
+printf "${GREEN}Sistema atualizado com sucesso!${NC} \n"
 
 #Create Directories
 mkdir FireByte
@@ -16,21 +26,21 @@ mkdir Java
 wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Firebyte.sh"
 
 #Setup Docker
-echo "\033[0;34mVerificando se o docker está instalado..."
+printf "${PURPLE}Verificando se o docker está instalado...${NC} \n"
 docker --version
 if [ $? = 0 ];
   then
-    echo "\033[0;34mInstalando o docker..."
-    sudo apt install docker.io
-    echo "\033[0;34mDocker instalado com sucesso!"
+    printf "${PURPLE}Instalando o docker...${NC} \n"
+    sudo apt-get install docker.io -y
+    printf "${GREEN}Docker instalado com sucesso!${NC} \n"
 fi
-echo "\033[0;34mIniciando o docker..."
+printf "${PURPLE}Iniciando o docker...${NC} \n"
 sudo systemctl start docker
 sudo systemctl enable docker
-echo "\033[0;34mDocker iniciado!"
+printf "${GREEN}Docker iniciado!${NC} \n"
 
 #MySQL Container
-echo "\033[0;34mConfigurando Banco Local..."
+printf "${PURPLE}Configurando Banco Local...${NC} \n"
 cd DB
 mkdir sql
 cd sql
@@ -41,17 +51,18 @@ wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main
 docker build -t firebytedb .
 docker run -d --name localDB -p 3306:3306 firebytedb
 cd ..
-echo "\033[0;34mBanco Local configurado com sucesso!"
+printf "${GREEN}Banco Local configurado com sucesso!${NC} \n"
 
 #Java .jar
 cd Java
-echo "\033[0;34mBaixando Sistema Java..."
+printf "${PURPLE}Baixando Sistema Java...${NC} \n"
 #wget .jar
+printf "${GREEN}Sistema Java Baixado com sucesso!${NC} \n"
 
 #Java Container
-echo "\033[0;34mConfigurando Sistema Java..."
+printf "${PURPLE}Configurando Sistema Java...${NC} \n"
 wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Java/Dockerfile"
 docker build -t firebyteJava .
 docker run -p 8080:8080 firebyteJava
-echo "\033[0;34mFirebyte foi configurado com sucesso!"
-echo "\033[0;34mPara executar nosso programa novamente você pode rodar o script 'Firebyte.sh'"
+printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
+printf "${PURPLE}Para executar nosso programa novamente você pode rodar o script 'Firebyte.sh'${NC} \n"
