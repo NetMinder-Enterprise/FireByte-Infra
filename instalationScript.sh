@@ -71,7 +71,7 @@ start_docker(){
 }
 
 # Builda e inicia o container do DB
-build_db_container(){
+build_and_run_db_container(){
   if [ ! "$(docker ps -a -q -f name=<name>)" ];
     then
       cd DB || exit_with_error "Diretório não encontrado: DB."
@@ -84,7 +84,7 @@ build_db_container(){
 }
 
 # Builda e inicia o container do Java
-build_java_container(){
+build_and_run_java_container(){
   if [ ! "$(docker ps -a -q -f name=<name>)" ];
     then
       cd Java || exit_with_error "Diretório não encontrado: java."
@@ -94,6 +94,10 @@ build_java_container(){
     else
       printf "${GREEN}Container Java já está rodando!${NC} \n"
   fi
+}
+
+enter_java_app(){
+  docker exec -it firebytejava bash || exit_with_error "Falha ao entrar no container Java."
 }
 
 
@@ -127,4 +131,7 @@ build_java_container
 printf "${GREEN}Container Java iniciado com sucesso!${NC} \n"
 
 printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
-printf "${PURPLE}Para executar nosso programa novamente, você pode rodar o script 'Firebyte.sh'${NC} \n"
+printf "${PURPLE}Para executar nosso programa novamente, você pode rodar o script ${GREEN}'Firebyte.sh'${NC} \n"
+
+printf "${PURPLE}Iniciando a aplicação...'${NC} \n"
+enter_java_app
