@@ -72,7 +72,7 @@ start_docker(){
 
 # Builda e inicia o container do DB
 build_and_run_db_container(){
-  if [ ! "$(docker ps -a -q -f name=<name>)" ];
+  if [ ! "$(docker ps -a -q -f name=firebytedb)" ];
     then
       cd DB || exit_with_error "Diretório não encontrado: DB."
       docker build -t firebytedb . || exit_with_error "Falha ao construir a imagem Docker para o banco de dados."
@@ -85,7 +85,7 @@ build_and_run_db_container(){
 
 # Builda e inicia o container do Java
 build_and_run_java_container(){
-  if [ ! "$(docker ps -a -q -f name=<name>)" ];
+  if [ ! "$(docker ps -a -q -f name=firebytejava)" ];
     then
       cd Java || exit_with_error "Diretório não encontrado: java."
       docker build -t firebytejava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
