@@ -1,11 +1,11 @@
-# Iniciar o docker
 start_docker(){
   sudo systemctl start docker || exit_with_error "Falha ao iniciar o Docker."
+  sudo systemctl enable docker || exit_with_error "Falha ao habilitar o Docker."
 }
 
 # Builda e inicia o container do DB
 build_and_run_db_container(){
-  if [ ! "$(docker ps -a -q -f name=<name>)" ];
+  if [ ! "$(docker ps -a -q -f name=firebytedb)" ];
     then
       cd DB || exit_with_error "Diretório não encontrado: DB."
       docker build -t firebytedb . || exit_with_error "Falha ao construir a imagem Docker para o banco de dados."
@@ -16,23 +16,21 @@ build_and_run_db_container(){
   fi
 }
 
-# Builda e inicia o container do Java
+# Builda e inicia o container do Java (caso já esteja rodando, remove e inicia novamente)
 build_and_run_java_container(){
-  if [ ! "$(docker ps -a -q -f name=<name>)" ];
+  if [ ! "$(docker ps -a -q -f name=firebytejava)" ];
     then
-      cd Java || exit_with_error "Diretório não encontrado: java."
-      docker build -t firebytejava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
-      docker run -d --name firebytejava -p 8080:8080 firebytejava || exit_with_error "Falha ao iniciar o contêiner Java."
-      cd .. || exit_with_error "Falha ao voltar para o diretório FireByte."
-    else
-      printf "${GREEN}Container Java já está rodando!${NC} \n"
+      docker rm firebytejava || exit_with_error "Falha ao remover o contêiner Java."
   fi
+  cd Java || exit_with_error "Diretório não encontrado: java."
+  docker build -t firebytejava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
+  docker run -i --name firebytejava -p 8080:8080 firebytejava || exit_with_error "Falha ao iniciar o contêiner Java."
+  cd .. || exit_with_error "Falha ao voltar para o diretório FireByte."
+  printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
 }
 
-enter_java_app(){
-  docker exec -it firebytejava bash || exit_with_error "Falha ao entrar no container Java."
-}
 
+## Execução do script ##
 
 printf "${PURPLE}Iniciando o docker...${NC} \n"
 start_docker
@@ -44,7 +42,5 @@ printf "${GREEN}Container do Banco Local iniciado com sucesso!${NC} \n"
 
 printf "${PURPLE}Iniciando container Java...${NC} \n"
 build_and_run_java_container
-printf "${GREEN}Container Java iniciado com sucesso!${NC} \n"
 
-printf "${PURPLE}Iniciando a aplicação...'${NC} \n"
-enter_java_app
+printf "${PURPLE}Para executar nosso programa novamente, você pode rodar o script ${GREEN}'Firebyte.sh'${NC} \n"
