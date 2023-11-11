@@ -123,11 +123,11 @@ start_docker
 printf "${GREEN}Docker iniciado com sucesso!${NC} \n"
 
 printf "${PURPLE}Iniciando container do Banco Local...${NC} \n"
-build_db_container
+build_and_run_db_container
 printf "${GREEN}Container do Banco Local iniciado com sucesso!${NC} \n"
 
 printf "${PURPLE}Iniciando container Java...${NC} \n"
-build_java_container
+build_and_run_java_container
 printf "${GREEN}Container Java iniciado com sucesso!${NC} \n"
 
 printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
