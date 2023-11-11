@@ -72,7 +72,7 @@ start_docker(){
 
 # Builda e inicia o container do DB
 build_db_container(){
-  if docker ps --format '{{.Names}}' | grep -q "^firebytedb$"; 
+  if docker ps -a -q -f name=firebytedb
     then
       printf "${GREEN}Container DB já está rodando!${NC} \n"
     else
@@ -85,7 +85,7 @@ build_db_container(){
 
 # Builda e inicia o container do Java
 build_java_container(){
-  if docker ps --format '{{.Names}}' | grep -q "^firebytejava$"; 
+  if docker ps -a -q -f name=firebytejava
     then
       printf "${GREEN}Container Java já está rodando!${NC} \n"
     else
