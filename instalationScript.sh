@@ -70,7 +70,9 @@ check_docker_compose(){
   if ! command docker-compose –version &> /dev/null; 
     then
       printf "${PURPLE}Instalando o docker-compose...${NC} \n"
-      sudo curl -SL https://github.com/docker/compose/releases/download/v2.23.0/dockercompose-linux-x86_64 -o /usr/local/bin/docker-compose || exit_with_error "Falha ao instalar o Docker-compose."
+      sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose || exit_with_error "Falha ao baixar o Docker-compose."
+      sudo chmod +x /usr/local/bin/docker-compose
+      docker-compose --version
       printf "${GREEN}Docker-compose instalado com sucesso!${NC} \n"
     else
       printf "${GREEN}Docker-compose já instalado!${NC} \n"
@@ -78,12 +80,25 @@ check_docker_compose(){
 }
 
 # Builda e inicia os containers
-run_containers(){
-  docker-compose up || exit_with_error "Falha ao iniciar os contêineres."
+run_container(){
+  sudo docker-compose up -d || exit_with_error "Falha ao iniciar os contêineres."
 }
 
-clean_up(){
-  rm -rf FireByte/instalation || exit_with_error "Falha ao remover diretório de instalação."
+# Checa se o java está instalado (se não, instala)
+check_java_instalation(){
+  if ! command -v java &> /dev/null; 
+    then
+      printf "${PURPLE}Instalando o Java...${NC} \n"
+      sudo apt install openjdk-17-jdk -y || exit_with_error "Falha ao instalar o Java."
+      printf "${GREEN}Java instalado com sucesso!${NC} \n"
+    else
+      printf "${GREEN}Java já instalado!${NC} \n"
+  fi
+}
+
+# Roda o .jar com o java
+run_java(){
+  sudo java -jar firebyte.jar || exit_with_error "Falha ao iniciar o sistema Java."
 }
 
 ## Execução do script ##
@@ -110,10 +125,13 @@ printf "${GREEN}Docker iniciado com sucesso!${NC} \n"
 printf "${PURPLE}Verificando se o docker-compose está instalado...${NC} \n"
 check_docker_compose
 
-printf "${PURPLE}Iniciando containers...${NC} \n"
-run_containers
-printf "${GREEN}Containers iniciados com sucesso!${NC} \n"
+printf "${PURPLE}Iniciando container...${NC} \n"
+run_container
+printf "${GREEN}Container iniciado com sucesso!${NC} \n"
 
-clean_up
+printf "${PURPLE}Verificando se o java está instalado...${NC} \n"
+check_java_instalation
 
+printf "${PURPLE}Iniciando o sistema Java...${NC} \n"
 printf "${PURPLE}Para executar nosso programa novamente, você pode rodar o script ${GREEN}'Firebyte.sh'${NC} \n"
+run_java

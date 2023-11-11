@@ -15,17 +15,5 @@ services:
       - db_data:/var/lib/mysql
       - ./init-scripts:/docker-entrypoint-initdb.d
 
-  firebytejava:
-    image: openjdk:17.0.1-jdk-slim
-    volumes:
-      - ./app:/app
-      - ./firebyte.jar:/app/firebyte.jar
-    working_dir: /app
-    depends_on:
-      - firebytedb
-    environment:
-      DATABASE_URL: jdbc:mysql://firebytedb:3306/firebyteDB
-      DATABASE_USER: firebyte
-      DATABASE_PASSWORD: 1234
-    stdin_open: true
-    tty: true
+volumes:
+  db_data:
