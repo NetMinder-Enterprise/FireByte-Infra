@@ -87,13 +87,15 @@ build_and_run_db_container(){
 build_and_run_java_container(){
   if [ ! "$(docker ps -a -q -f name=firebytejava)" ];
     then
+      cd Java || exit_with_error "Diretório não encontrado: java."
+      docker build -t firebytejava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
+      docker run -i --name firebytejava -p 8080:8080 firebytejava || exit_with_error "Falha ao iniciar o contêiner Java."
+      cd .. || exit_with_error "Falha ao voltar para o diretório FireByte."
+      printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
+    else
       docker rm firebytejava || exit_with_error "Falha ao remover o contêiner Java."
+      build_and_run_java_container
   fi
-  cd Java || exit_with_error "Diretório não encontrado: java."
-  docker build -t firebytejava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
-  docker run -i --name firebytejava -p 8080:8080 firebytejava || exit_with_error "Falha ao iniciar o contêiner Java."
-  cd .. || exit_with_error "Falha ao voltar para o diretório FireByte."
-  printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
 }
 
 ## Execução do script ##
