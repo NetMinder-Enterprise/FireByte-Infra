@@ -26,7 +26,7 @@ update_system(){
 
 # Criação de diretórios
 make_directories(){
-  mkdir -p FireByte/DB FireByte/DB/sql FireByte/Java || exit_with_error "Falha ao criar diretórios."
+  mkdir -p FireByte FireByte/instalation FireByte/instalation/init-scripts || exit_with_error "Falha ao criar diretórios."
 }
 
 # Download dos scripts
@@ -37,22 +37,17 @@ download_scripts(){
   chmod +x Firebyte.sh || exit_with_error "Falha ao tornar o script executável."
 
   # Download dos scripts SQL
-  cd DB || exit_with_error "Diretório não encontrado: FireByte/DB."
-  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile."
-  cd sql || exit_with_error "Diretório não encontrado: FireByte/DB/sql."
-  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/createUser.sql" || exit_with_error "Falha ao baixar createUser.sql."
-  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/DB/Script%20DB.sql" || exit_with_error "Falha ao baixar Script DB.sql."
+  cd instalation || exit_with_error "Diretório não encontrado: FireByte/instalation."
+  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/instalation/docker-compose.yml" || exit_with_error "Falha ao baixar Docker-compose file."
+  cd init-scripts || exit_with_error "Diretório não encontrado: FireByte/instalation/init-scripts."
+  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/instalation/init-scripts/init.sql" || exit_with_error "Falha ao baixar script inicial sql."
 
   # Download do .jar
-  cd ../../Java || exit_with_error "Diretório não encontrado: Java."
+  cd .. || exit_with_error "Diretório não encontrado: FireByte/instalation."
   wget "https://github.com/NetMinder-Enterprise/FireByte-Backend/raw/main/firebyte.jar" || exit_with_error "Falha ao baixar o Sistema Java."
-  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Java/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile."
-
-  #voltar a pasta raiz
-  cd .. || exit_with_error "Falha ao voltar para a pasta raiz."
 }
 
-# Checa se o docker está instalado
+# Checa se o docker está instalado (se não, instala)
 check_docker(){
   if ! command -v docker &> /dev/null; 
     then
@@ -70,32 +65,25 @@ start_docker(){
   sudo systemctl enable docker || exit_with_error "Falha ao habilitar o Docker."
 }
 
-# Builda e inicia o container do DB
-build_and_run_db_container(){
-  if [ ! "$(docker ps -a -q -f name=firebytedb)" ];
+# Checa se o docker-compose está instalado (se não, instala)
+check_docker_compose(){
+  if ! command docker-compose –version &> /dev/null; 
     then
-      cd DB || exit_with_error "Diretório não encontrado: DB."
-      docker build -t firebytedb . || exit_with_error "Falha ao construir a imagem Docker para o banco de dados."
-      docker run -d --name firebytedb -p 3306:3306 firebytedb || exit_with_error "Falha ao iniciar o contêiner MySQL."
-      cd .. || exit_with_error "Falha ao voltar para o diretório FireByte."
+      printf "${PURPLE}Instalando o docker-compose...${NC} \n"
+      sudo curl -SL https://github.com/docker/compose/releases/download/v2.23.0/dockercompose-linux-x86_64 -o /usr/local/bin/docker-compose || exit_with_error "Falha ao instalar o Docker-compose."
+      printf "${GREEN}Docker-compose instalado com sucesso!${NC} \n"
     else
-      printf "${GREEN}Container DB já está rodando!${NC} \n"
+      printf "${GREEN}Docker-compose já instalado!${NC} \n"
   fi
 }
 
-# Builda e inicia o container do Java (caso já esteja rodando, remove e inicia novamente)
-build_and_run_java_container(){
-  if [ ! "$(docker ps -a -q -f name=firebytejava)" ];
-    then
-      cd Java || exit_with_error "Diretório não encontrado: java."
-      docker build -t firebytejava . || exit_with_error "Falha ao construir a imagem Docker para o aplicativo Java."
-      docker run -i --name firebytejava -p 8080:8080 firebytejava || exit_with_error "Falha ao iniciar o contêiner Java."
-      cd .. || exit_with_error "Falha ao voltar para o diretório FireByte."
-      printf "${GREEN}Firebyte foi configurado com sucesso!${NC} \n"
-    else
-      docker rm firebytejava || exit_with_error "Falha ao remover o contêiner Java."
-      build_and_run_java_container
-  fi
+# Builda e inicia os containers
+run_containers(){
+  docker-compose up || exit_with_error "Falha ao iniciar os contêineres."
+}
+
+clean_up(){
+  rm -rf FireByte/instalation || exit_with_error "Falha ao remover diretório de instalação."
 }
 
 ## Execução do script ##
@@ -119,11 +107,13 @@ printf "${PURPLE}Iniciando o docker...${NC} \n"
 start_docker
 printf "${GREEN}Docker iniciado com sucesso!${NC} \n"
 
-printf "${PURPLE}Iniciando container do Banco Local...${NC} \n"
-build_and_run_db_container
-printf "${GREEN}Container do Banco Local iniciado com sucesso!${NC} \n"
+printf "${PURPLE}Verificando se o docker-compose está instalado...${NC} \n"
+check_docker_compose
 
-printf "${PURPLE}Iniciando container Java...${NC} \n"
-build_and_run_java_container
+printf "${PURPLE}Iniciando containers...${NC} \n"
+run_containers
+printf "${GREEN}Containers iniciados com sucesso!${NC} \n"
+
+clean_up
 
 printf "${PURPLE}Para executar nosso programa novamente, você pode rodar o script ${GREEN}'Firebyte.sh'${NC} \n"
