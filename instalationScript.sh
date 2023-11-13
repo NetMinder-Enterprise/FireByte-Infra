@@ -36,11 +36,13 @@ download_scripts(){
   wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Firebyte.sh" || exit_with_error "Falha ao baixar o script executável."
   chmod +x Firebyte.sh || exit_with_error "Falha ao tornar o script executável."
 
-  # Download dos scripts SQL
+  # Download do Dockerfile do container de banco
   cd instalation || exit_with_error "Diretório não encontrado: FireByte/instalation."
-  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/instalation/docker-compose.yml" || exit_with_error "Falha ao baixar Docker-compose file."
+  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/Dockerfile" || exit_with_error "Falha ao baixar Dockerfile.";
+
+  # Download dos scripts SQL
   cd init-scripts || exit_with_error "Diretório não encontrado: FireByte/instalation/init-scripts."
-  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/instalation/init-scripts/init.sql" || exit_with_error "Falha ao baixar script inicial sql."
+  wget "https://raw.githubusercontent.com/NetMinder-Enterprise/FireByte-Infra/main/sql/init.sql" || exit_with_error "Falha ao baixar script inicial sql."
 
   # Download do .jar
   cd .. || exit_with_error "Diretório não encontrado: FireByte/instalation."
@@ -65,23 +67,15 @@ start_docker(){
   sudo systemctl enable docker || exit_with_error "Falha ao habilitar o Docker."
 }
 
-# Checa se o docker-compose está instalado (se não, instala)
-check_docker_compose(){
-  if ! command docker-compose –version &> /dev/null; 
-    then
-      printf "${PURPLE}Instalando o docker-compose...${NC} \n"
-      sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose || exit_with_error "Falha ao baixar o Docker-compose."
-      sudo chmod +x /usr/local/bin/docker-compose
-      docker-compose --version
-      printf "${GREEN}Docker-compose instalado com sucesso!${NC} \n"
-    else
-      printf "${GREEN}Docker-compose já instalado!${NC} \n"
-  fi
-}
-
 # Builda e inicia os containers
-run_container(){
-  sudo docker-compose up -d || exit_with_error "Falha ao iniciar os contêineres."
+build_and_run_database_container(){
+  sudo docker build -t firebytedb .
+  if docker ps --format "{{.Image}}" | grep -q "$IMAGE_NAME";
+    then
+      printf "${GREEN}Container já iniciado!${NC} \n"
+    else
+      sudo docker run -d --name firebytedb -p 3306:3306 firebyte
+  fi
 }
 
 # Checa se o java está instalado (se não, instala)
@@ -122,11 +116,8 @@ printf "${PURPLE}Iniciando o docker...${NC} \n"
 start_docker
 printf "${GREEN}Docker iniciado com sucesso!${NC} \n"
 
-printf "${PURPLE}Verificando se o docker-compose está instalado...${NC} \n"
-check_docker_compose
-
-printf "${PURPLE}Iniciando container...${NC} \n"
-run_container
+printf "${PURPLE}Iniciando container do banco...${NC} \n"
+build_and_run_database_container
 printf "${GREEN}Container iniciado com sucesso!${NC} \n"
 
 printf "${PURPLE}Verificando se o java está instalado...${NC} \n"
