@@ -1,5 +1,11 @@
 CREATE DATABASE IF NOT EXISTS firebyteDB;
+
+CREATE USER IF NOT EXISTS 'firebyte'@'%' IDENTIFIED BY '1234';
+GRANT ALL PRIVILEGES ON firebyteDB.* TO 'firebyte'@'%';
+FLUSH PRIVILEGES;
+
 USE firebyteDB;
+
 
 -- -----------------------------------------------------
 -- Table Empresa
@@ -129,3 +135,16 @@ CREATE TABLE IF NOT EXISTS parametro (
   FOREIGN KEY (fkComponente) REFERENCES tipoComponente (id),
   FOREIGN KEY (fkEmpresa) REFERENCES empresa (id)
 );
+
+
+INSERT INTO nivelAcesso (tipo, ativo) VALUES ('Administrador', 1), ('Usuário', 1), ('Convidado', 1);
+
+INSERT INTO empresa (nomeFantasia, razaoSocial, CNPJ) VALUES ('Netminder', 'Netminder', '00.000.000/0000-00');
+
+INSERT INTO usuario (fkEmpresa, fkNivelAcesso, nome, email, senha) VALUES (1, 1, 'Danilo', 'danilo.pedrazzi@sptech.school', '123');
+
+INSERT INTO tipoComponente (nome) VALUES ('CPU'), ('RAM'), ('DISCO'), ('REDE');
+
+UPDATE dispositivo SET titulo = 'Servidor 1', descricao = 'Servidor de teste', ativo = 1, taxaAtualizacao = 3000 WHERE id = 1;
+
+INSERT INTO componentesDispositivos (fkTipoComponente, fkDispositivo) VALUES (1, 1), (2, 1), (3, 1), (4, 1);
