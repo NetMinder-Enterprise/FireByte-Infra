@@ -74,7 +74,7 @@ build_and_run_database_container(){
     then
       printf "${GREEN}Container já iniciado!${NC} \n"
     else
-      sudo docker run -d --name firebytedb -p 3306:3306 firebyte
+      sudo docker run -d --name firebytedb -p 3306:3306 firebytedb
   fi
 }
 
