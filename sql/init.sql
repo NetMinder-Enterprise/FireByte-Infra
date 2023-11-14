@@ -144,7 +144,3 @@ INSERT INTO empresa (nomeFantasia, razaoSocial, CNPJ) VALUES ('Netminder', 'Netm
 INSERT INTO usuario (fkEmpresa, fkNivelAcesso, nome, email, senha) VALUES (1, 1, 'Danilo', 'danilo.pedrazzi@sptech.school', '123');
 
 INSERT INTO tipoComponente (nome) VALUES ('CPU'), ('RAM'), ('DISCO'), ('REDE');
-
-UPDATE dispositivo SET titulo = 'Servidor 1', descricao = 'Servidor de teste', ativo = 1, taxaAtualizacao = 3000 WHERE id = 1;
-
-INSERT INTO componentesDispositivos (fkTipoComponente, fkDispositivo) VALUES (1, 1), (2, 1), (3, 1), (4, 1);
