@@ -70,12 +70,7 @@ start_docker(){
 # Builda e inicia os containers
 build_and_run_database_container(){
   sudo docker build -t firebytedb .
-  if docker ps --format "{{.Image}}" | grep -q "$IMAGE_NAME";
-    then
-      printf "${GREEN}Container já iniciado!${NC} \n"
-    else
-      sudo docker run -d --name firebytedb -p 3306:3306 firebytedb
-  fi
+  sudo docker run -d firebytedb -p 3306:3306 firebytedb
 }
 
 # Checa se o java está instalado (se não, instala)
