@@ -1,11 +1,13 @@
--- Drop existing connections and set the database to single-user mode
-USE master;
--- Use the firebyteDB database
+use master;
+
+IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = 'firebyteDB')
+BEGIN
+    CREATE DATABASE firebyteDB;
+END
+
 USE firebyteDB;
 
--- -----------------------------------------------------
 -- Table Empresa
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'empresa')
 BEGIN
     CREATE TABLE empresa (
@@ -16,9 +18,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table Dispositivo
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'dispositivo')
 BEGIN
     CREATE TABLE dispositivo (
@@ -33,9 +33,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table TipoComponente
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'tipoComponente')
 BEGIN
     CREATE TABLE tipoComponente (
@@ -44,9 +42,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table ComponentesDispositivos
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'componentesDispositivos')
 BEGIN
     CREATE TABLE componentesDispositivos (
@@ -58,9 +54,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table Log
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'log')
 BEGIN
     CREATE TABLE log (
@@ -72,9 +66,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table NivelAcesso
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'nivelAcesso')
 BEGIN
     CREATE TABLE nivelAcesso (
@@ -84,9 +76,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table Usuario
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'usuario')
 BEGIN
     CREATE TABLE usuario (
@@ -101,9 +91,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table Contato
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'contato')
 BEGIN
     CREATE TABLE contato (
@@ -116,9 +104,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table Endereco
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'endereco')
 BEGIN
     CREATE TABLE endereco (
@@ -132,9 +118,7 @@ BEGIN
     );
 END
 
--- -----------------------------------------------------
 -- Table Parametro
--- -----------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'parametro')
 BEGIN
     CREATE TABLE parametro (
@@ -148,3 +132,19 @@ BEGIN
         FOREIGN KEY (fkEmpresa) REFERENCES empresa (id)
     );
 END
+
+INSERT INTO nivelAcesso (tipo, ativo) VALUES
+    ('Admin', 1),
+    ('Ususario', 1);
+SELECT * FROM nivelAcesso;
+
+INSERT INTO tipoComponente (nome) VALUES
+    ('CPU'),
+    ('RAM'),
+    ('DISCO'),
+    ('REDE');
+SELECT * FROM tipoComponente;
+
+INSERT INTO empresa (nomeFantasia, razaoSocial, CNPJ) VALUES
+    ('Netminder', 'Netminder', '00.000.000/0000-00');
+SELECT * FROM empresa;
