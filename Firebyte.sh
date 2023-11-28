@@ -10,7 +10,7 @@ exit_with_error() {
 
 # Roda o .jar com o java
 run_java(){
-  sudo java -jar firebyte.jar || exit_with_error "Falha ao iniciar o sistema Java."
+  sudo java -jar instalation/firebyte.jar || exit_with_error "Falha ao iniciar o sistema Java."
 }
 
 
