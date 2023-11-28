@@ -26,7 +26,7 @@ update_system(){
 
 # Criação de diretórios
 make_directories(){
-  mkdir -p FireByte FireByte/instalation FireByte/instalation/init-scripts || exit_with_error "Falha ao criar diretórios."
+  mkdir -p FireByte FireByte/instalation FireByte/instalation/sql || exit_with_error "Falha ao criar diretórios."
 }
 
 # Download dos scripts
