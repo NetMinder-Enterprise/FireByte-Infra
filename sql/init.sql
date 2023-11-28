@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS empresa (
   PRIMARY KEY (id)
 );
 
+INSERT INTO empresa (nomeFantasia, razaoSocial, CNPJ) VALUES ('Netminder', 'Netminder', '00.000.000/0000-00');
+
 -- -----------------------------------------------------
 -- Table Dispositivo
 -- -----------------------------------------------------
@@ -33,6 +35,8 @@ CREATE TABLE IF NOT EXISTS dispositivo (
   FOREIGN KEY (fkEmpresa) REFERENCES empresa (id)
 );
 
+INSERT INTO dispositivo (enderecoMAC, fkEmpresa, titulo, descricao, ativo, taxaAtualizacao) VALUES ('00:00:00:00:00:00', 1, 'Máquina', 'Máquina', 1, 2000);
+
 -- -----------------------------------------------------
 -- Table Componente
 -- -----------------------------------------------------
@@ -41,6 +45,8 @@ CREATE TABLE IF NOT EXISTS tipoComponente (
   nome VARCHAR(45),
   PRIMARY KEY (id)
 );
+
+INSERT INTO tipoComponente (nome) VALUES ('CPU'), ('RAM'), ('DISCO'), ('REDE');
 
 CREATE TABLE IF NOT EXISTS componentesDispositivos(
     id INT AUTO_INCREMENT NOT NULL,
@@ -51,6 +57,7 @@ CREATE TABLE IF NOT EXISTS componentesDispositivos(
     FOREIGN KEY (fkDispositivo) REFERENCES dispositivo(id)
 );
 
+INSERT INTO componentesDispositivos (fkTipoComponente, fkDispositivo) VALUES (1, 1), (2, 1), (3, 1), (4, 1);
 
 -- -----------------------------------------------------
 -- Table Log
@@ -135,12 +142,3 @@ CREATE TABLE IF NOT EXISTS parametro (
   FOREIGN KEY (fkComponente) REFERENCES tipoComponente (id),
   FOREIGN KEY (fkEmpresa) REFERENCES empresa (id)
 );
-
-
-INSERT INTO nivelAcesso (tipo, ativo) VALUES ('Administrador', 1), ('Usuário', 1), ('Convidado', 1);
-
-INSERT INTO empresa (nomeFantasia, razaoSocial, CNPJ) VALUES ('Netminder', 'Netminder', '00.000.000/0000-00');
-
-INSERT INTO usuario (fkEmpresa, fkNivelAcesso, nome, email, senha) VALUES (1, 1, 'Danilo', 'danilo.pedrazzi@sptech.school', '123');
-
-INSERT INTO tipoComponente (nome) VALUES ('CPU'), ('RAM'), ('DISCO'), ('REDE');
