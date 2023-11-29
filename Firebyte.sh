@@ -87,7 +87,7 @@ check_java_instalation(){
 
 # Roda o .jar com o java
 run_java(){
-  sudo java -jar firebyte.jar || exit_with_error "Falha ao iniciar o sistema Java."
+  sudo java -jar firebyte.jar
 }
 
 ## Execução do script ##
